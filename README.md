@@ -6,7 +6,7 @@ This web application facilitates a collaborative environment where job candidate
 - Jhon Anderson Marín González
 - Alejandro Correa
 - Juan José Palacio
-- Samuel
+- Samuel granados lopez
 
 ##  Initial Setup
 
