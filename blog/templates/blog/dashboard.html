@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>¡Hola, {{ request.user.username }}!</h1>
+        <p>Bienvenido a tu dashboard.</p>
+        
+    </div>
+{% endblock %}
