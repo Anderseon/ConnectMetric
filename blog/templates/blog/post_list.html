@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="my-4">Últimas Publicaciones</h1>
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                            {{ post.title }}
+                        </h4>
+                        <p class="card-text">{{ post.content|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Publicado el {{ post.published_date|date:"j de F, Y" }} por {{ post.author.username }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
