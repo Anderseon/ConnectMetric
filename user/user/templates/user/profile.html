@@ -1,0 +1,21 @@
+<!-- users/templates/users/profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-5 text-center">
+        <h1 class="mb-4">Tu Perfil</h1>
+        
+        <!-- Muestra la imagen del perfil. La URL es la del campo 'profile_image'. -->
+        <img src="{{ request.user.profile.profile_image.url }}" alt="Imagen de Perfil" class="img-fluid rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+        
+        <h2>{{ request.user.username }}</h2>
+        <p class="text-muted">Correo: {{ request.user.email }}</p>
+        
+        <hr>
+        <p>Falta agregar info.</p>
+        
+        <!-- Enlace para volver al dashboard -->
+        <a href="{% url 'blog:dashboard' %}" class="btn btn-secondary mt-3">Volver al Dashboard</a>
+    </div>
+{% endblock %}
