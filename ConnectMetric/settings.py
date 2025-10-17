@@ -132,3 +132,17 @@ LOGOUT_REDIRECT_URL = 'blog:dashboard'
 
 # Configuración para los templates de autenticación
 LOGIN_URL = 'authentication:login'
+
+
+def _split_env_list(value: str) -> list[str]:
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+AZURE_AD_CONFIG = {
+    "ENABLED": os.environ.get("AZURE_AD_ENABLED", "false").lower() == "true",
+    "TENANT_ID": os.environ.get("AZURE_AD_TENANT_ID", ""),
+    "CLIENT_ID": os.environ.get("AZURE_AD_CLIENT_ID", ""),
+    "CLIENT_SECRET": os.environ.get("AZURE_AD_CLIENT_SECRET", ""),
+    "SCOPES": _split_env_list(os.environ.get("AZURE_AD_SCOPES", "User.Read")) or ["User.Read"],
+    "ALLOWED_DOMAINS": _split_env_list(os.environ.get("AZURE_AD_ALLOWED_DOMAINS", "")),
+}

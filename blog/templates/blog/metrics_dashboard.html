@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 mb-0">Panel de métricas</h1>
+            <p class="text-muted mb-0">Resumen ejecutivo del pipeline de reclutamiento y la satisfacción de los candidatos.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge text-bg-primary">Sólo RRHH</span>
+            <a class="btn btn-sm btn-outline-light border" href="{% url 'blog:metrics_export' %}">Exportar CSV</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase">Procesos totales</h6>
+                    <p class="display-6 mb-0">{{ summary.total_processes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase">Procesos activos</h6>
+                    <p class="display-6 mb-0">{{ summary.active_processes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase">Asignaciones</h6>
+                    <p class="display-6 mb-0">{{ summary.candidate_assignments }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase">Feedback registrados</h6>
+                    <p class="display-6 mb-0">{{ summary.feedback_records }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Proyección de avance de candidaturas</div>
+                <div class="card-body">
+                    {% with total=assignment_summary.total %}
+                        {% if total %}
+                            <p class="mb-1"><strong>{{ assignment_summary.completed }}</strong> completadas</p>
+                            <p class="display-6 mb-2">{{ assignment_summary.completed_percentage|floatformat:0 }}<small class="text-muted">%</small></p>
+                            <p class="mb-0 text-muted">{{ assignment_summary.in_progress }} en progreso.</p>
+                        {% else %}
+                            <p class="text-muted mb-0">Aún no hay candidaturas registradas en el sistema.</p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Procesos con mejor experiencia</div>
+                <div class="card-body">
+                    {% if best_rated_processes %}
+                        <ul class="list-group list-group-flush">
+                            {% for process in best_rated_processes %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ process.title }}</strong>
+                                        <div class="small text-muted">{{ process.assignment_total }} candidatos · {{ process.stage_total }} etapas</div>
+                                    </div>
+                                    <span class="badge text-bg-success">⭐ {{ process.avg_rating|floatformat:1 }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Todavía no hay feedback suficiente para calcular rankings.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header">Resumen de procesos</div>
+                <div class="card-body p-0">
+                    {% if process_metrics %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th class="text-center">Candidatos</th>
+                                        <th class="text-center">Etapas</th>
+                                        <th class="text-center">Feedback</th>
+                                        <th class="text-center">Avg.</th>
+                                        <th class="text-center">Cerradas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for process in process_metrics %}
+                                        <tr>
+                                            <td>{{ process.title }}</td>
+                                            <td class="text-center">{{ process.assignment_total }}</td>
+                                            <td class="text-center">{{ process.stage_total }}</td>
+                                            <td class="text-center">{{ process.feedback_total }}</td>
+                                            <td class="text-center">
+                                                {% if process.avg_rating %}
+                                                    ⭐ {{ process.avg_rating|floatformat:1 }}
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">{{ process.completed_assignments }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0 p-3">No se encontraron procesos para mostrar.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header">Etapas a revisar</div>
+                <div class="card-body">
+                    {% if stages_to_watch %}
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Etapa</th>
+                                        <th>Proceso</th>
+                                        <th class="text-center">Feedback</th>
+                                        <th class="text-center">Avg.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stage in stages_to_watch %}
+                                        <tr class="{% if stage.is_blocker %}table-warning{% endif %}">
+                                            <td>{{ stage.name }}</td>
+                                            <td>{{ stage.process.title }}</td>
+                                            <td class="text-center">{{ stage.feedback_total }}</td>
+                                            <td class="text-center">⭐ {{ stage.avg_rating|floatformat:1 }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="small text-muted mt-3 mb-0">Las filas resaltadas representan etapas marcadas como bloqueantes en el proceso.</p>
+                    {% else %}
+                        <p class="text-muted mb-0">Aún no hay suficiente feedback para identificar oportunidades de mejora.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

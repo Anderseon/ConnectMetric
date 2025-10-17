@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 mb-0">Procesos activos</h1>
+            <p class="text-muted mb-0">Resumen ejecutivo con métricas de satisfacción y asignaciones.</p>
+        </div>
+        {% if can_manage %}
+            <a href="{% url 'blog:process_create' %}" class="btn btn-primary">Nuevo proceso</a>
+        {% endif %}
+    </div>
+
+    {% if processes %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Proceso</th>
+                        <th>Responsable</th>
+                        <th>Estado</th>
+                        <th class="text-center">Etapas</th>
+                        <th class="text-center">Candidatos</th>
+                        <th class="text-center">Satisfacción promedio</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for process in processes %}
+                        <tr>
+                            <td>{{ process.title }}</td>
+                            <td>{{ process.owner.get_full_name|default:process.owner.username }}</td>
+                            <td>
+                                <span class="badge text-bg-secondary">{{ process.get_status_display }}</span>
+                            </td>
+                            <td class="text-center">{{ process.stage_total }}</td>
+                            <td class="text-center">{{ process.candidate_total }}</td>
+                            <td class="text-center">
+                                {% if process.average_rating %}
+                                    ⭐ {{ process.average_rating|floatformat:1 }}
+                                {% else %}
+                                    <span class="text-muted">Sin feedback</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-outline-secondary btn-sm" href="{% url 'blog:process_detail' process.pk %}">Abrir</a>
+                                {% if can_manage or request.user == process.owner %}
+                                    <a class="btn btn-outline-primary btn-sm" href="{% url 'blog:process_update' process.pk %}">Editar</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            Aún no se han creado procesos de selección. Puedes registrarlos desde el admin.
+        </div>
+    {% endif %}
+{% endblock %}

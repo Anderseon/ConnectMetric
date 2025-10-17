@@ -1,9 +1,124 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1>¡Hola, {{ request.user.username }}!</h1>
-        <p>Bienvenido a tu dashboard.</p>
-        
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-6">Hola, {{ request.user.get_full_name|default:request.user.username }} 👋</h1>
+            <p class="text-muted mb-0">Aquí tienes el estado más reciente de tus procesos y experiencias.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    Procesos a tu cargo
+                </div>
+                <div class="card-body">
+                    {% if owned_processes %}
+                        <div class="list-group list-group-flush">
+                            {% for process in owned_processes %}
+                                <a href="{% url 'blog:process_detail' process.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ process.title }}</h6>
+                                            <small class="text-muted">{{ process.get_status_display }} · {{ process.created_at|date:"d M Y" }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge text-bg-secondary">{{ process.stage_total }} etapas</span>
+                                            <span class="badge text-bg-info">{{ process.candidate_total }} candidatos</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Aún no lideras procesos de selección.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    Tus asignaciones como candidato
+                </div>
+                <div class="card-body">
+                    {% if candidate_assignments %}
+                        {% for assignment in candidate_assignments %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1">{{ assignment.process.title }}</h6>
+                                        <small class="text-muted">Desde {{ assignment.joined_at|date:"d M Y" }}</small>
+                                    </div>
+                                    <span class="badge text-bg-light">
+                                        Etapa actual:
+                                        {% if assignment.current_stage %}
+                                            {{ assignment.current_stage.name }}
+                                        {% else %}
+                                            Sin definir
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% if assignment.current_stage %}
+                                    <a class="btn btn-sm btn-outline-success mt-2" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">
+                                        Registrar feedback de la etapa
+                                    </a>
+                                {% endif %}
+                                {% if assignment.feedbacks.all %}
+                                    <ul class="list-unstyled mt-2 mb-0 small text-muted">
+                                        {% for feedback in assignment.feedbacks.all|slice:':2' %}
+                                            <li>⭐ {{ feedback.rating }} · {{ feedback.stage.name }} · {{ feedback.created_at|date:"d/m" }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">No tienes procesos asignados como candidato ahora mismo.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">Tus últimos comentarios</div>
+                <div class="card-body">
+                    {% if recent_feedback %}
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Proceso</th>
+                                        <th>Etapa</th>
+                                        <th>Rating</th>
+                                        <th>Visibilidad</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for feedback in recent_feedback %}
+                                        <tr>
+                                            <td>{{ feedback.assignment.process.title }}</td>
+                                            <td>{{ feedback.stage.name }}</td>
+                                            <td>⭐ {{ feedback.rating }}</td>
+                                            <td>{{ feedback.get_visibility_display }}</td>
+                                            <td>{{ feedback.created_at|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Cuando compartas feedback podrás revisarlo aquí.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

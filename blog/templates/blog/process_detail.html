@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="mb-4">
+        <a href="{% url 'blog:process_list' %}" class="btn btn-link text-decoration-none">← Volver a procesos</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="h5 mb-0">{{ process.title }}</h2>
+                        <small class="text-muted">Responsable: {{ process.owner.get_full_name|default:process.owner.username }}</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge text-bg-secondary">{{ process.get_status_display }}</span>
+                        {% if can_manage %}
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'blog:process_update' process.pk %}">Editar</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">{{ process.description|default:"Sin descripción" }}</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <span class="badge text-bg-light">Etapas: {{ stages|length }}</span>
+                        <span class="badge text-bg-light">Candidatos: {{ assignments|length }}</span>
+                        {% if process.start_date %}<span class="badge text-bg-light">Inicio: {{ process.start_date|date:"d/m/Y" }}</span>{% endif %}
+                        {% if process.end_date %}<span class="badge text-bg-light">Cierre: {{ process.end_date|date:"d/m/Y" }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Etapas</span>
+                    {% if can_manage %}
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'blog:stage_create' process.pk %}">Agregar etapa</a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if stages %}
+                        <div class="list-group list-group-flush">
+                            {% for stage in stages %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ stage.order }}. {{ stage.name }}</h6>
+                                            <small class="text-muted">{{ stage.description|default:"Sin descripción" }}</small>
+                                            {% if stage.due_date %}
+                                                <div><small class="text-muted">Objetivo: {{ stage.due_date|date:"d/m/Y" }}</small></div>
+                                            {% endif %}
+                                            {% if stage.is_blocker %}
+                                                <span class="badge text-bg-warning mt-1">Bloqueante</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-end">
+                                            {% if stage.responses %}
+                                                <div>⭐ {{ stage.avg_rating|floatformat:1 }}</div>
+                                                <small class="text-muted">{{ stage.responses }} respuestas</small>
+                                            {% else %}
+                                                <small class="text-muted">Sin feedback</small>
+                                            {% endif %}
+                                            {% if can_manage %}
+                                                <div class="mt-2">
+                                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'blog:stage_update' process.pk stage.pk %}">Editar</a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-3">
+                            <p class="text-muted mb-0">No se han configurado etapas para este proceso.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">Candidatos asignados</div>
+                <div class="card-body">
+                    {% if can_manage %}
+                        <form method="post" action="{% url 'blog:assignment_create' process.pk %}" class="mb-3">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <label class="form-label" for="id_candidate">Selecciona candidato</label>
+                                {{ assignment_form.candidate }}
+                                {% for error in assignment_form.candidate.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label" for="id_current_stage">Etapa actual</label>
+                                {{ assignment_form.current_stage }}
+                                {% for error in assignment_form.current_stage.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <button class="btn btn-sm btn-primary" type="submit">Agregar candidato</button>
+                        </form>
+                        <hr>
+                    {% endif %}
+                    {% if assignments %}
+                        <ul class="list-unstyled mb-0">
+                            {% for assignment in assignments %}
+                                <li class="mb-3">
+                                    <strong>{{ assignment.candidate.get_full_name|default:assignment.candidate.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        Etapa actual:
+                                        {% if assignment.current_stage %}
+                                            {{ assignment.current_stage.name }}
+                                        {% else %}
+                                            Sin asignar
+                                        {% endif %}
+                                    </small>
+                                    <div class="mt-2 d-flex gap-2">
+                                        {% if request.user == assignment.candidate and assignment.current_stage %}
+                                            <a class="btn btn-sm btn-outline-success" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">Enviar feedback</a>
+                                        {% endif %}
+                                        {% if can_manage and assignment.current_stage %}
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'blog:assignment_progress' process.pk assignment.pk %}">Marcar etapa completada</a>
+                                        {% endif %}
+                                    </div>
+                                    {% if can_manage and not assignment.current_stage %}
+                                        <div class="mt-2">
+                                            <a class="btn btn-sm btn-outline-primary" href="{% url 'blog:assignment_progress' process.pk assignment.pk %}">Marcar completado</a>
+                                        </div>
+                                    {% endif %}
+                                    {% if assignment.feedbacks.all %}
+                                        <ul class="list-unstyled mt-2 mb-0 small text-muted">
+                                            {% for feedback in assignment.feedbacks.all|slice:':2' %}
+                                                <li>⭐ {{ feedback.rating }} · {{ feedback.stage.name }} · {{ feedback.created_at|date:"d/m" }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Todavía no hay candidatos asociados.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
