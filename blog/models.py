@@ -126,7 +126,34 @@ class StageFeedback(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         help_text="Califica utilidad de la etapa (1-5)",
     )
-    comment = models.TextField()
+    
+    # Feedback anónimo
+    is_anonymous = models.BooleanField(
+        default=False,
+        verbose_name="Compartir de forma anónima",
+        help_text="Si activas esto, tu nombre no será visible para otros candidatos"
+    )
+    
+    # Feedback estructurado (Pros & Cons)
+    pros = models.TextField(
+        verbose_name="Aspectos positivos",
+        help_text="¿Qué te pareció útil o valioso de esta etapa?",
+        blank=True
+    )
+    cons = models.TextField(
+        verbose_name="Áreas de mejora",
+        help_text="¿Qué podría mejorar en esta etapa?",
+        blank=True
+    )
+    advice = models.TextField(
+        verbose_name="Consejos para futuros candidatos",
+        help_text="¿Qué recomendaciones darías a quienes van a pasar por esta etapa?",
+        blank=True
+    )
+    
+    # Campo legacy para compatibilidad
+    comment = models.TextField(blank=True, verbose_name="Comentario general (opcional)")
+    
     visibility = models.CharField(
         max_length=20,
         choices=[("team", "Equipo"), ("candidates", "Candidatos"), ("private", "Privado PO")],
@@ -146,3 +173,9 @@ class StageFeedback(models.Model):
 
     def is_editable_by(self, user: User) -> bool:
         return user == self.author or user.is_staff
+    
+    def get_author_display(self) -> str:
+        """Retorna el nombre del autor o 'Anónimo' si está marcado como anónimo."""
+        if self.is_anonymous:
+            return "Candidato Anónimo"
+        return self.author.get_full_name() or self.author.username

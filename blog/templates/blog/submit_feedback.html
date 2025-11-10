@@ -5,31 +5,84 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h1 class="h5 mb-0">Feedback para {{ stage.name }}</h1>
+                    <h1 class="h5 mb-0">Comparte tu experiencia - {{ stage.name }}</h1>
                     <small class="text-muted">Proceso: {{ assignment.process.title }}</small>
                 </div>
                 <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <strong>💡 Tu feedback es voluntario y muy valioso</strong>
+                        <p class="mb-0 small">Al compartir tu experiencia, ayudas a otros candidatos a prepararse mejor para este proceso. Tu opinión es completamente opcional, pero puede marcar una gran diferencia.</p>
+                    </div>
                     <form method="post" novalidate>
                         {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
                         <div class="mb-3">
-                            <label for="id_rating" class="form-label">Calificación (1-5)</label>
+                            <label for="id_rating" class="form-label">Calificación (1-5) <span class="text-danger">*</span></label>
                             {{ form.rating }}
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>1 - Poco útil</span>
+                                <span>5 - Muy útil</span>
+                            </div>
                             {% if form.rating.errors %}
                                 <div class="text-danger small">{{ form.rating.errors|join:', ' }}</div>
                             {% endif %}
-                            {% if form.rating.help_text %}
-                                <div class="form-text">{{ form.rating.help_text }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_anonymous }}
+                                <label class="form-check-label" for="id_is_anonymous">
+                                    🎭 Compartir de forma anónima
+                                </label>
+                                <div class="form-text">Si activas esto, tu nombre no será visible para otros candidatos</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="mb-3">Estructura tu feedback (completa al menos un campo)</h6>
+
+                        <div class="mb-3">
+                            <label for="id_pros" class="form-label">✅ Aspectos positivos</label>
+                            {{ form.pros }}
+                            {% if form.pros.errors %}
+                                <div class="text-danger small">{{ form.pros.errors|join:', ' }}</div>
                             {% endif %}
                         </div>
+
                         <div class="mb-3">
-                            <label for="id_comment" class="form-label">Comentarios</label>
+                            <label for="id_cons" class="form-label">⚠️ Áreas de mejora</label>
+                            {{ form.cons }}
+                            {% if form.cons.errors %}
+                                <div class="text-danger small">{{ form.cons.errors|join:', ' }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_advice" class="form-label">💡 Consejos para futuros candidatos</label>
+                            {{ form.advice }}
+                            {% if form.advice.errors %}
+                                <div class="text-danger small">{{ form.advice.errors|join:', ' }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_comment" class="form-label">📝 Comentario general (opcional)</label>
                             {{ form.comment }}
                             {% if form.comment.errors %}
                                 <div class="text-danger small">{{ form.comment.errors|join:', ' }}</div>
                             {% endif %}
                         </div>
+
+                        <hr class="my-4">
+
                         <div class="mb-3">
-                            <label for="id_visibility" class="form-label">Visibilidad</label>
+                            <label for="id_visibility" class="form-label">👁️ Visibilidad</label>
                             {{ form.visibility }}
                             {% if form.visibility.errors %}
                                 <div class="text-danger small">{{ form.visibility.errors|join:', ' }}</div>
@@ -38,9 +91,10 @@
                                 <div class="form-text">{{ form.visibility.help_text }}</div>
                             {% endif %}
                         </div>
+                        
                         <div class="d-flex justify-content-between">
-                            <a class="btn btn-outline-secondary" href="{% url 'blog:process_detail' assignment.process.pk %}">Cancelar</a>
-                            <button type="submit" class="btn btn-success">Guardar</button>
+                            <a class="btn btn-outline-secondary" href="{% url 'blog:process_detail' assignment.process.pk %}">Decidir más tarde</a>
+                            <button type="submit" class="btn btn-primary">Compartir mi experiencia</button>
                         </div>
                     </form>
                 </div>

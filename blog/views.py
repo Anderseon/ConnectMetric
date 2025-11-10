@@ -272,7 +272,7 @@ def submit_feedback(request, assignment_id: int, stage_id: int):
             feedback.stage = stage
             feedback.author = request.user
             feedback.save()
-            messages.success(request, "Tu experiencia quedó registrada.")
+            messages.success(request, "¡Gracias por compartir tu experiencia! Esto ayudará a otros candidatos.")
             return redirect("blog:process_detail", pk=assignment.process.pk)
     else:
         form = StageFeedbackForm(instance=existing_feedback)

@@ -101,3 +101,51 @@ To ensure all team members use the same package versions, follow this process wh
 
 3.  **Commit the `requirements.txt` File**
   Add the updated `requirements.txt` file to your commit. This ensures everyone on the team will install the new dependency when they set up the project or pull the latest changes.
+
+## Key Features
+
+### 🎭 Anonymous Feedback
+Candidates can choose to share their experiences anonymously to provide more honest and valuable feedback without fear of repercussions.
+
+- Optional anonymity checkbox in feedback forms
+- Display shows "Anonymous Candidate" instead of real names
+- Visual badge indicator for anonymous feedback
+- Administrators can still track authorship for moderation purposes
+
+### ✍️ Structured Feedback (Pros & Cons)
+Inspired by Glassdoor, feedback is now organized into meaningful sections to provide more actionable insights:
+
+- **✅ Positive Aspects**: What was useful or valuable about this stage
+- **⚠️ Areas for Improvement**: What could be better in the process
+- **💡 Advice for Future Candidates**: Recommendations and preparation tips
+- **📝 General Comments**: Optional additional thoughts
+
+This structured approach makes feedback more useful for both candidates preparing for the process and HR teams looking to improve their recruitment workflow.
+
+### 🎯 Completely Voluntary Feedback
+All feedback is explicitly optional throughout the interface:
+
+- Clear messaging that feedback is voluntary but valuable
+- Non-intrusive UI elements (secondary buttons, helpful icons)
+- "Decide later" option instead of "Cancel"
+- Motivational language emphasizing helping other candidates
+- No pressure or mandatory requirements
+
+### 📊 Enhanced Visualization
+- Visual star ratings (⭐⭐⭐⭐⭐)
+- Organized feedback cards with icons and color coding
+- Summary views in dashboard
+- Dedicated "Shared Experiences" section in process details
+
+## Recent Updates (November 2025)
+
+### Feedback System Overhaul
+Complete redesign of the feedback system to make it more voluntary, structured, and useful:
+
+- Added anonymous feedback capability
+- Implemented structured feedback sections (pros, cons, advice)
+- Updated all UI language to emphasize voluntary nature of feedback
+- Created reusable feedback card component
+- Enhanced visual presentation with icons and improved layout
+- Database migration to support new feedback fields
+

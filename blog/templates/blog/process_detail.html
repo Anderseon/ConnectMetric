@@ -78,6 +78,27 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Sección de Feedback -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">💬 Experiencias compartidas</h6>
+                    <small class="text-muted">Feedback de candidatos sobre las etapas del proceso</small>
+                </div>
+                <div class="card-body">
+                    {% if process.assignments.all %}
+                        {% for assignment in process.assignments.all %}
+                            {% if assignment.feedbacks.all %}
+                                {% for feedback in assignment.feedbacks.all %}
+                                    {% include 'blog/_feedback_card.html' with feedback=feedback show_stage=True %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">Aún no hay experiencias compartidas para este proceso.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-4">
@@ -121,7 +142,9 @@
                                     </small>
                                     <div class="mt-2 d-flex gap-2">
                                         {% if request.user == assignment.candidate and assignment.current_stage %}
-                                            <a class="btn btn-sm btn-outline-success" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">Enviar feedback</a>
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">
+                                                💬 Compartir experiencia (opcional)
+                                            </a>
                                         {% endif %}
                                         {% if can_manage and assignment.current_stage %}
                                             <a class="btn btn-sm btn-outline-primary" href="{% url 'blog:assignment_progress' process.pk assignment.pk %}">Marcar etapa completada</a>

@@ -17,3 +17,10 @@ db.sqlite3
 
 # Carpeta de medios (si subimos imágenes más adelante)
 media/
+
+# Archivos de Word (documentación generada)
+*.docx
+*.doc
+
+# Archivo de entrega final (no subir a GitHub)
+entrega_final.md

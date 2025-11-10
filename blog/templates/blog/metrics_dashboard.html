@@ -40,8 +40,9 @@
         <div class="col-md-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <h6 class="text-muted text-uppercase">Feedback registrados</h6>
+                    <h6 class="text-muted text-uppercase">Experiencias compartidas</h6>
                     <p class="display-6 mb-0">{{ summary.feedback_records }}</p>
+                    <small class="text-muted">Feedback voluntario</small>
                 </div>
             </div>
         </div>
@@ -81,7 +82,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="text-muted mb-0">Todavía no hay feedback suficiente para calcular rankings.</p>
+                        <p class="text-muted mb-0">Todavía no hay suficientes experiencias compartidas para calcular rankings.</p>
                     {% endif %}
                 </div>
             </div>
@@ -161,7 +162,7 @@
                         </div>
                         <p class="small text-muted mt-3 mb-0">Las filas resaltadas representan etapas marcadas como bloqueantes en el proceso.</p>
                     {% else %}
-                        <p class="text-muted mb-0">Aún no hay suficiente feedback para identificar oportunidades de mejora.</p>
+                        <p class="text-muted mb-0">Aún no hay suficientes experiencias compartidas para identificar oportunidades de mejora.</p>
                     {% endif %}
                 </div>
             </div>

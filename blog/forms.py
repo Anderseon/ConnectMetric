@@ -8,10 +8,30 @@ from .models import CandidateAssignment, ProcessStage, RecruitmentProcess, Stage
 class StageFeedbackForm(forms.ModelForm):
     class Meta:
         model = StageFeedback
-        fields = ("rating", "comment", "visibility")
+        fields = ("rating", "is_anonymous", "pros", "cons", "advice", "comment", "visibility")
         widgets = {
             "rating": forms.NumberInput(attrs={"min": 1, "max": 5, "type": "range", "class": "form-range"}),
-            "comment": forms.Textarea(attrs={"rows": 4, "class": "form-control", "placeholder": "Comparte tu experiencia"}),
+            "is_anonymous": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "pros": forms.Textarea(attrs={
+                "rows": 3, 
+                "class": "form-control", 
+                "placeholder": "Ej: La comunicación fue clara, el entrevistador fue amable..."
+            }),
+            "cons": forms.Textarea(attrs={
+                "rows": 3, 
+                "class": "form-control", 
+                "placeholder": "Ej: El proceso fue muy largo, faltó feedback intermedio..."
+            }),
+            "advice": forms.Textarea(attrs={
+                "rows": 3, 
+                "class": "form-control", 
+                "placeholder": "Ej: Prepara bien tu portafolio, repasa conceptos de..."
+            }),
+            "comment": forms.Textarea(attrs={
+                "rows": 3, 
+                "class": "form-control", 
+                "placeholder": "Comentarios adicionales (opcional)"
+            }),
             "visibility": forms.Select(attrs={"class": "form-select"}),
         }
         help_texts = {
@@ -19,11 +39,20 @@ class StageFeedbackForm(forms.ModelForm):
             "visibility": "Define quién puede ver este comentario dentro del equipo.",
         }
 
-    def clean_comment(self):
-        comment = self.cleaned_data.get("comment", "").strip()
-        if len(comment) < 10:
-            raise forms.ValidationError("Cuéntanos un poco más. Usa al menos 10 caracteres.")
-        return comment
+    def clean(self):
+        cleaned_data = super().clean()
+        pros = cleaned_data.get("pros", "").strip()
+        cons = cleaned_data.get("cons", "").strip()
+        advice = cleaned_data.get("advice", "").strip()
+        comment = cleaned_data.get("comment", "").strip()
+        
+        # Al menos uno de los campos debe tener contenido
+        if not any([pros, cons, advice, comment]):
+            raise forms.ValidationError(
+                "Por favor completa al menos uno de los campos: aspectos positivos, áreas de mejora, consejos o comentario general."
+            )
+        
+        return cleaned_data
 
 
 class RecruitmentProcessForm(forms.ModelForm):

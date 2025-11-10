@@ -63,9 +63,14 @@
                                     </span>
                                 </div>
                                 {% if assignment.current_stage %}
-                                    <a class="btn btn-sm btn-outline-success mt-2" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">
-                                        Registrar feedback de la etapa
-                                    </a>
+                                    <div class="mt-2">
+                                        <small class="text-muted d-block mb-1">
+                                            💡 ¿Quieres ayudar a otros candidatos? Comparte tu experiencia (es opcional)
+                                        </small>
+                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'blog:submit_feedback' assignment.pk assignment.current_stage.pk %}">
+                                            Compartir mi experiencia
+                                        </a>
+                                    </div>
                                 {% endif %}
                                 {% if assignment.feedbacks.all %}
                                     <ul class="list-unstyled mt-2 mb-0 small text-muted">
@@ -87,33 +92,38 @@
     <div class="row mt-4">
         <div class="col">
             <div class="card">
-                <div class="card-header">Tus últimos comentarios</div>
+                <div class="card-header">
+                    <h6 class="mb-0">Tus últimas experiencias compartidas</h6>
+                </div>
                 <div class="card-body">
                     {% if recent_feedback %}
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Proceso</th>
-                                        <th>Etapa</th>
-                                        <th>Rating</th>
-                                        <th>Visibilidad</th>
-                                        <th>Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for feedback in recent_feedback %}
-                                        <tr>
-                                            <td>{{ feedback.assignment.process.title }}</td>
-                                            <td>{{ feedback.stage.name }}</td>
-                                            <td>⭐ {{ feedback.rating }}</td>
-                                            <td>{{ feedback.get_visibility_display }}</td>
-                                            <td>{{ feedback.created_at|date:"d/m/Y H:i" }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                        {% for feedback in recent_feedback %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ feedback.assignment.process.title }}</strong> - {{ feedback.stage.name }}
+                                        {% if feedback.is_anonymous %}
+                                            <span class="badge bg-secondary ms-2">🎭 Anónimo</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-end">
+                                        <span>⭐ {{ feedback.rating }}/5</span>
+                                        <div><small class="text-muted">{{ feedback.created_at|date:"d/m/Y" }}</small></div>
+                                    </div>
+                                </div>
+                                {% if feedback.pros %}
+                                    <div class="mt-2 small">
+                                        <strong class="text-success">✅</strong> {{ feedback.pros|truncatewords:15 }}
+                                    </div>
+                                {% endif %}
+                                {% if feedback.advice %}
+                                    <div class="mt-1 small">
+                                        <strong class="text-info">💡</strong> {{ feedback.advice|truncatewords:15 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
                     {% else %}
                         <p class="text-muted mb-0">Cuando compartas feedback podrás revisarlo aquí.</p>
                     {% endif %}
